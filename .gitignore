@@ -16,12 +16,12 @@ captures/
 *.apk
 output-metadata.json
 
-# IntelliJ
+# IntelliJ / Android Studio
 *.iml
 .idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+
+# Kotlin compiler cache
+.kotlin/
 
 # Keystore files
 *.jks
