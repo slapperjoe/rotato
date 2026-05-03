@@ -7,9 +7,12 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 
@@ -50,22 +53,39 @@ class RotationService : Service() {
 
     private fun buildNotification(): Notification {
         fun pendingBroadcast(action: String): PendingIntent {
-            val intent = Intent(action).setPackage(packageName)
+            // Android 14+ requires an explicit component when targeting
+            // an unexported receiver — setPackage() alone is not sufficient.
+            val intent = Intent(action, null, this, ActionReceiver::class.java)
             return PendingIntent.getBroadcast(
                 this, action.hashCode(), intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         }
 
+        // Custom layout so the buttons are visible in the collapsed notification —
+        // addAction() buttons only appear when the notification is expanded.
+        val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
+        val textColor = if (isDark) Color.WHITE else Color.BLACK
+        val btnBg = if (isDark) R.drawable.btn_notification_dark else R.drawable.btn_notification
+
+        val views = RemoteViews(packageName, R.layout.notification_controls).apply {
+            setOnClickPendingIntent(R.id.btn_rotate_left,  pendingBroadcast(ActionReceiver.ACTION_ROTATE_LEFT))
+            setOnClickPendingIntent(R.id.btn_close,        pendingBroadcast(ActionReceiver.ACTION_CLOSE))
+            setOnClickPendingIntent(R.id.btn_rotate_right, pendingBroadcast(ActionReceiver.ACTION_ROTATE_RIGHT))
+            for (id in listOf(R.id.btn_rotate_left, R.id.btn_close, R.id.btn_rotate_right)) {
+                setTextColor(id, textColor)
+                setInt(id, "setBackgroundResource", btnBg)
+            }
+        }
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Rotato")
-            .setContentText("Screen rotation control active")
+            .setCustomContentView(views)
+            .setCustomBigContentView(views)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setOngoing(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .addAction(0, "◀ Left", pendingBroadcast(ActionReceiver.ACTION_ROTATE_LEFT))
-            .addAction(0, "Right ▶", pendingBroadcast(ActionReceiver.ACTION_ROTATE_RIGHT))
-            .addAction(0, "✕ Close", pendingBroadcast(ActionReceiver.ACTION_CLOSE))
             .build()
     }
 

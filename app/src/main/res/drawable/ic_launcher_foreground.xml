@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rotation arrows scaled to fill the adaptive icon safe zone (72dp centred in 108dp canvas) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,36v9l12,-12l-12,-12v9c-13.26,0 -24,10.74 -24,24c0,4.71 1.38,9.09 3.72,12.78L38.1,62.4c-1.35,-2.49 -2.1,-5.37 -2.1,-8.4c0,-9.93 8.07,-18 18,-18zM74.28,41.22L69.9,45.6c1.32,2.52 2.1,5.37 2.1,8.4c0,9.93 -8.07,18 -18,18v-9l-12,12l12,12v-9c13.26,0 24,-10.74 24,-24c0,-4.71 -1.38,-9.09 -3.72,-12.78z" />
+
+</vector>

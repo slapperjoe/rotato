@@ -79,11 +79,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startServiceAndFinish() {
-        if (RotationService.isRunning) {
-            Toast.makeText(this, "Rotato is already running", Toast.LENGTH_SHORT).show()
-        } else {
+        if (!RotationService.isRunning) {
             startForegroundService(Intent(this, RotationService::class.java))
         }
+        // Expand the notification shade so the controls are immediately visible
+        try {
+            val sbService = getSystemService("statusbar")
+            Class.forName("android.app.StatusBarManager")
+                .getMethod("expandNotificationsPanel")
+                .invoke(sbService)
+        } catch (_: Exception) { /* not available on this device/ROM */ }
+        // Suppress the window open/close animation entirely
+        overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
+        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, 0)
         finish()
     }
 }
